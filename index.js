@@ -1,5 +1,16 @@
 const express = require('express')
 const app = express()
+const morgan = require('morgan')
+
+morgan.token('body-post', function bodyPost (req, res) {
+  if (req.method ==="POST")
+     return JSON.stringify(req.body)
+   return ""
+})
+
+
+app.use(morgan(':method :url :status :res[content-length] - :response-time ms :body-post'))
+
 
 
 app.use(express.json())  
@@ -50,7 +61,7 @@ app.get('/api/persons/:id', (request, response) => {
     } else {
         response.status(404).end()
     }
-    response.json(person)
+
 })
 
 app.delete('/api/persons/:id', (request, response) => {
@@ -67,7 +78,7 @@ const generateId = () => {
   
 app.post('/api/persons', (request, response) => {
     const body = request.body
-    console.log(body)
+    //console.log(body)
     if (!body.name || !body.number ) {
         return response.status(400).json({ 
           error: 'Name or number is missing' 
@@ -90,7 +101,12 @@ app.post('/api/persons', (request, response) => {
   
     response.json(person)
 })
-  
+
+const unknownEndpoint = (request, response) => {
+  response.status(404).send({ error: 'unknown endpoint' })
+}
+
+app.use(unknownEndpoint)
   
 const PORT = 3001
 app.listen(PORT, () => {
