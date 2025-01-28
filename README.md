@@ -4,4 +4,4 @@ This project includes a backend using Node Espress and the frontend with a react
 
 ## Link to aplication
 
-standing-handsomely-approval.glich.me
+https://open-excited-typhoon.glitch.me/
