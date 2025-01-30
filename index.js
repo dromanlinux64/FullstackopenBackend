@@ -1,7 +1,9 @@
+require('dotenv').config()
 const express = require('express')
 const app = express()
 const morgan = require('morgan')
 const cors = require('cors')
+const Person = require('./models/person.js')
 
 app.use(cors())
  
@@ -50,23 +52,16 @@ app.get('/', (request, response) => {
 })
 
 app.get('/api/persons', (request, response) => {
-  response.json(persons)
+  Person.find({}).then(persons => {
+    response.json(persons)
+  })
 })
 
-app.get('/info', (request, response) => {
-    const respuesta =`<p> Phonebook has info for ${persons.length} people </p>
-    <p> ${Date()} </p>`
-    response.send(respuesta)
-  })
-
 app.get('/api/persons/:id', (request, response) => {
-    const id = Number(request.params.id)
-    const person = persons.find(person =>person.id===id)
-    if (person) {
-        response.json(person)
-    } else {
-        response.status(404).end()
-    }
+  Person.findById(request.params.id)
+  .then(person =>
+    response.json(person)
+    )
 
 })
 
@@ -90,22 +85,22 @@ app.post('/api/persons', (request, response) => {
           error: 'Name or number is missing' 
         })
       }
-    if (persons.some(person=>person.name===body.name))
+/*    if (persons.some(person=>person.name===body.name))
     {
         return response.status(400).json({ 
           error: `${body.name} already exist` 
         })
-    }
+    } */
       
-    const person = {
-      id: generateId(),
+    const person = new Person({
       name: body.name,
       number: body.number,
-    }
+    })
   
-    persons = persons.concat(person)
-  
-    response.json(person)
+    person.save()
+      .then(person =>
+        response.json(person)
+      )
 })
 
 const unknownEndpoint = (request, response) => {
